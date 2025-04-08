@@ -6,11 +6,20 @@ const { Registration } = require('../models');
 // POST /api/register - Save registration data
 router.post('/', async (req, res) => {
   try {
-    const data = await Registration.create(req.body);
-    res.status(201).json({ message: 'Registration successful', data });
-  } catch (err) {
-    console.error('Error saving registration:', err);
-    res.status(500).json({ message: 'Error saving registration', error: err.message });
+    console.log('📦 Incoming payload:', req.body); // <-- Confirm body structure
+    const registration = await Registration.create(req.body);
+    console.log('✅ Registration successful:', registration.toJSON());
+    res.status(201).json({
+      message: 'Registration created successfully',
+      registration,
+    });
+  } catch (error) {
+    console.error('❌ Registration error:', error); // <-- This is the key
+    res.status(500).json({
+      error: 'Failed to register',
+      stack: error.stack, // 👈 this will show exactly where it failed
+      details: error.message
+    });
   }
 });
 

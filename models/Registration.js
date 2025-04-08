@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Registration.init({
     fullName: DataTypes.STRING,
-    dob: DataTypes.STRING,
+    dob: DataTypes.DATEONLY,
     age: DataTypes.STRING,
     mobileNumber: DataTypes.STRING,
     occupation: DataTypes.STRING,
@@ -25,9 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     talent: DataTypes.STRING,
     position: DataTypes.STRING,
     denomination: DataTypes.STRING,
-    confirmationDate: DataTypes.STRING,
+    confirmationDate: DataTypes.DATEONLY,
     confirmationPlace: DataTypes.STRING,
-    baptismDate: DataTypes.STRING,
+    baptismDate: DataTypes.DATEONLY,
     baptismPlace: DataTypes.STRING,
     reasonNoMembershipCard: DataTypes.STRING,
     isConfirmed: DataTypes.BOOLEAN,
