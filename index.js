@@ -1,19 +1,20 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-const db = require('./models');
+const dotenv = require('dotenv');
 const registrationRoutes = require('./routes/registration.routes'); // ✅ Unified and correct
 
+dotenv.config();
+
+const db = require('./models');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // ✅ Middleware
 app.use(cors());
-app.use(bodyParser.json());
 app.use(express.json());
 
 // ✅ API Base Route
-app.use('/api/registrations', registrationRoutes);
+app.use('/api/register', registrationRoutes);
 
 // ✅ Health Check Route
 app.get('/', (req, res) => {

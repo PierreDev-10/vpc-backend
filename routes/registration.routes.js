@@ -6,7 +6,7 @@ const { Registration } = require('../models'); // ✅ Add this line
 /// POST /api/register
  router.post('/', async (req, res) => {
    try {
-     const registration = await Registration.create(req.body);
+     const registration = await db.Registration.create(req.body);
      res.status(201).json({
        message: 'Registration created successfully',
        registration,
