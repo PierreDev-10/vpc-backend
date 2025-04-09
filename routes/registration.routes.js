@@ -2,27 +2,30 @@ const express = require('express');
 const router = express.Router();
 const { Registration } = require('../models');
 
-// POST /api/register - Create registration
+// POST /api/register - Create or Reject Duplicates
 router.post('/', async (req, res) => {
   try {
-    console.log("📥 Received POST request with payload:", req.body);
+    const existing = await Registration.findOne({ where: { email: req.body.email } });
+
+    if (existing) {
+      return res.status(409).json({
+        error: 'Duplicate',
+        message: 'Registration already exists with this email',
+      });
+    }
 
     const registration = await Registration.create(req.body);
-
-    console.log("✅ Successfully saved registration:", registration);
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Registration created successfully',
       data: registration,
     });
-  } catch (error) {
-    console.error('❌ Error creating registration:');
-    console.error('🔥 Error Message:', error.message);
-    console.error('📌 Full Stack Trace:', error.stack);
 
+  } catch (error) {
+    console.error('❌ Error creating registration:', error);
     res.status(500).json({
       error: 'Failed to register',
       message: error.message,
-      stack: error.stack, // Optional: include full stack for now
+      stack: error.stack,
     });
   }
 });
