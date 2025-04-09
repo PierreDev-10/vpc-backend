@@ -43,10 +43,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Registration',
     tableName: 'registrations'
-  });
-  email: {
-  type: DataTypes.STRING,
-  unique: true,  // ✅ Prevents duplicates
-  },
+    });
   return Registration;
 };
