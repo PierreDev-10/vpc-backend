@@ -16,7 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     occupation: DataTypes.STRING,
     gender: DataTypes.STRING,
     maritalStatus: DataTypes.STRING,
-    email: DataTypes.STRING,
+    email: {
+       type: DataTypes.STRING,
+       unique: true, // ✅ Now correctly placed inside init
+    },
     resAddress: DataTypes.STRING,
     houseNumber: DataTypes.STRING,
     landmark: DataTypes.STRING,
@@ -41,6 +44,9 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Registration',
     tableName: 'registrations'
   });
-
+  email: {
+  type: DataTypes.STRING,
+  unique: true,  // ✅ Prevents duplicates
+  },
   return Registration;
 };

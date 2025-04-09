@@ -50,5 +50,29 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching registration', error: err.message });
   }
 });
+// Check if registration exists
+router.get('/check', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const record = await Registration.findOne({ where: { email } });
+    if (record) return res.status(200).json(record);
+    res.status(404).json({ message: 'Not registered' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to check registration' });
+  }
+});
+
+// Update route
+router.post('/update', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const updated = await Registration.update(req.body, {
+      where: { email }
+    });
+    res.status(200).json({ message: 'Updated successfully', updated });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update registration' });
+  }
+});
 
 module.exports = router;
