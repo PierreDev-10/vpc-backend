@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Registration } = require('../models');
 
-// POST /api/register - Create or Reject Duplicates
+// ✅ POST /api/register - Create or reject duplicates
 router.post('/', async (req, res) => {
   try {
     const existing = await Registration.findOne({ where: { email: req.body.email } });
@@ -19,7 +19,6 @@ router.post('/', async (req, res) => {
       message: 'Registration created successfully',
       data: registration,
     });
-
   } catch (error) {
     console.error('❌ Error creating registration:', error);
     res.status(500).json({
@@ -30,7 +29,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET all registrations
+// ✅ GET /api/register - Get all registrations
 router.get('/', async (req, res) => {
   try {
     const data = await Registration.findAll();
@@ -40,7 +39,19 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single registration by ID
+// Check if registration exists by email — ✅ THIS GOES FIRST!
+router.get('/check', async (req, res) => {
+  try {
+    const { email } = req.query;
+    const record = await Registration.findOne({ where: { email } });
+    if (record) return res.status(200).json(record);
+    res.status(404).json({ message: 'Not registered' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to check registration' });
+  }
+});
+
+// GET single registration by ID — ✅ THIS COMES AFTER
 router.get('/:id', async (req, res) => {
   try {
     const data = await Registration.findByPk(req.params.id);
@@ -53,19 +64,8 @@ router.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching registration', error: err.message });
   }
 });
-// Check if registration exists
-router.get('/check', async (req, res) => {
-  try {
-    const { email } = req.query;
-    const record = await Registration.findOne({ where: { email } });
-    if (record) return res.status(200).json(record);
-    res.status(404).json({ message: 'Not registered' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to check registration' });
-  }
-});
 
-// Update route
+// ✅ Update route
 router.post('/update', async (req, res) => {
   try {
     const { email } = req.body;
