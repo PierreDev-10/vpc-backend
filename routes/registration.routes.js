@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Registration } = require('../models');
+const { Op } = require('sequelize');
 
 // ✅ POST /api/register - Create or reject duplicates
 router.post('/', async (req, res) => {
@@ -42,8 +43,8 @@ router.get('/', async (req, res) => {
 // Check if registration exists by email — ✅ THIS GOES FIRST!
 router.get('/check', async (req, res) => {
   try {
-    const { email } = req.query;
-    const record = await Registration.findOne({ where: { email } });
+    const { email, mobileNumber } = req.query;
+    const record = await Registration.findOne({ where: { [Op.or]: [{ email }, { mobileNumber }]}});
     if (record) return res.status(200).json(record);
     res.status(404).json({ message: 'Not registered' });
   } catch (err) {
