@@ -5,6 +5,8 @@ const router = express.Router();
 const { Op } = require('sequelize');
 const { User } = require('../models'); // Make sure models/index.js includes User
 
+console.log('✅ user.routes.js has been loaded');
+
 // ✅ Register new user
 router.post('/register', async (req, res) => {
   try {
