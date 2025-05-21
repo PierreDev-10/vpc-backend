@@ -8,7 +8,6 @@ dotenv.config();
 
 const db = require('./models');
 const app = express();
-
 const PORT = process.env.PORT || 5001;
 
 // ✅ Middleware
