@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 // ✅ Start Server
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server is running on ${PORT}`);
 
   try {
