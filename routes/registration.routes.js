@@ -40,6 +40,28 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ GET /api/register/check-by-username - Retrieve registration by username
+router.get('/check-by-username', async (req, res) => {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const record = await Registration.findOne({ where: { username } });
+
+    if (record) {
+      return res.status(200).json(record);
+    } else {
+      return res.status(404).json({ message: 'Registration not found' });
+    }
+  } catch (err) {
+    console.error('❌ Error fetching registration by username:', err);
+    res.status(500).json({ error: 'Failed to fetch registration by username' });
+  }
+});
+
 // Check if registration exists by email — ✅ THIS GOES FIRST!
 router.get('/check', async (req, res) => {
   try {

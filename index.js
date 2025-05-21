@@ -2,11 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const registrationRoutes = require('./routes/registration.routes'); // ✅ Unified and correct
+const userRoutes = require('./routes/user.routes');
 
 dotenv.config();
 
 const db = require('./models');
 const app = express();
+
 const PORT = process.env.PORT || 5001;
 
 // ✅ Middleware
@@ -15,6 +17,7 @@ app.use(express.json());
 
 // ✅ API Base Route
 app.use('/api/register', registrationRoutes);
+app.use('/api/users', userRoutes);
 app.use((req, res, next) => {
   console.log(`📡 Incoming Request: ${req.method} ${req.originalUrl}`);
   next();
