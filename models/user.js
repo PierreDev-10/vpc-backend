@@ -1,7 +1,7 @@
 // models/user.js
 
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  const User = sequelize.define('users', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -38,10 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW,
     },
   }, {
-    tableName: 'users',       // ✅ Ensure lowercase table name
     timestamps: false,        // ⛔ Skip Sequelize's auto timestamps
-    underscored: true,        // ✅ Use snake_case for consistency if needed
   });
-
   return User;
 };
