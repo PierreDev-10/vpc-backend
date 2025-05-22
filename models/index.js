@@ -16,25 +16,25 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
-// Read and import all models in the models directory (like registration.js)
+// Dynamically load models
 fs.readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js'
-    );
-  })
+  .filter(file =>
+    file.indexOf('.') !== 0 &&
+    file !== basename &&
+    file.slice(-3) === '.js'
+  )
   .forEach(file => {
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
 
-    // 🌟 Special case: map `users` model to `User` key for clarity
-        if (model.name === 'users') {
-          db['User'] = model;
+    // 🌟 Map 'users' to 'User'
+    if (model.name === 'users') {
+      db['User'] = model;
+    }
+
     db[model.name] = model;
   });
 
-// Setup associations if defined
+// Set up associations if any
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
