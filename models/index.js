@@ -27,10 +27,14 @@ fs.readdirSync(__dirname)
   })
   .forEach(file => {
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+
+    // 🌟 Special case: map `users` model to `User` key for clarity
+        if (model.name === 'users') {
+          db['User'] = model;
     db[model.name] = model;
   });
 
-// Run model associations if defined
+// Setup associations if defined
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
