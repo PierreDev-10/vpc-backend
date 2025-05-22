@@ -106,4 +106,32 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// ✅ Add this to routes/user.routes.js
+
+router.post('/verify', async (req, res) => {
+  try {
+    const { username, phone } = req.body;
+
+    if (!username || !phone) {
+      return res.status(400).json({ message: 'Username and phone are required.' });
+    }
+
+    const user = await User.findOne({
+      where: {
+        username: username.toUpperCase(),
+        phone: phone
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found with provided credentials.' });
+    }
+
+    res.status(200).json({ verified: true });
+  } catch (err) {
+    console.error('❌ Error verifying user:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;
