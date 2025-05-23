@@ -134,4 +134,33 @@ router.post('/verify', async (req, res) => {
   }
 });
 
+// Add at the top
+const { sendOTPEmail } = require('../utils/emailService');
+
+const emailOtps = {}; // Temporary in-memory store: { email: { otp, expires } }
+
+// ✅ Send OTP to email
+router.post('/send-email-otp', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Save OTP temporarily for 5 minutes
+  emailOtps[email] = {
+    otp,
+    expires: Date.now() + 5 * 60 * 1000,
+  };
+
+  const success = await sendOTPEmail(email, otp);
+
+  if (!success) {
+    return res.status(500).json({ message: 'Failed to send OTP. Try again later.' });
+  }
+
+  res.status(200).json({ message: 'OTP sent to email.' });
+});
+
 module.exports = router;
