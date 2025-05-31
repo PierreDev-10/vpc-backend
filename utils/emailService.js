@@ -13,6 +13,11 @@ const mg = mailgun.client({
 
 const sendOTPEmail = async (to, otp) => {
   try {
+    // ✅ Debug logs added to verify env variables
+    console.log("KEY:", process.env.MAILGUN_API_KEY);
+    console.log("DOMAIN:", process.env.MAILGUN_DOMAIN);
+    console.log("FROM:", process.env.EMAIL_FROM);
+
     const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
       from: process.env.EMAIL_FROM,
       to,
