@@ -163,4 +163,44 @@ router.post('/send-email-otp', async (req, res) => {
   res.status(200).json({ message: 'OTP sent to email.' });
 });
 
+const crypto = require('crypto');
+const { sendResetEmail } = require('../utils/emailService');
+const resetTokens = {}; // Temporary in-memory store
+
+// ✅ Send Reset Link to Email
+router.post('/send-reset-link', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found with this email' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 3600 * 1000; // 1 hour expiry
+
+    resetTokens[token] = {
+      userId: user.id,
+      expires,
+    };
+
+    const resetLink = `https://vpc-frontend.com/reset-password?token=${token}`;
+
+    const emailSent = await sendResetEmail(email, resetLink);
+    if (!emailSent) {
+      return res.status(500).json({ message: 'Failed to send reset link' });
+    }
+
+    res.status(200).json({ message: 'Reset link sent to email' });
+  } catch (err) {
+    console.error('❌ Reset link error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 module.exports = router;

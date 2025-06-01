@@ -34,4 +34,25 @@ const sendOTPEmail = async (to, otp) => {
   }
 };
 
-module.exports = { sendOTPEmail };
+const sendResetEmail = async (to, link) => {
+  try {
+    const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+      from: process.env.EMAIL_FROM,
+      to,
+      subject: 'Password Reset Request',
+      text: `Reset your password using this link: ${link}`,
+      html: `<p>Click the link to reset your password:</p><p><a href="${link}">${link}</a></p>`,
+    });
+
+    console.log('✅ Reset email sent:', response.id);
+    return true;
+  } catch (err) {
+    console.error('❌ Failed to send reset email:', err.message);
+    return false;
+  }
+};
+
+module.exports = {
+  sendOTPEmail,
+  sendResetEmail, // include this in your exports
+};
