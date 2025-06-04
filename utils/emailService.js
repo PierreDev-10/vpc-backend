@@ -1,58 +1,58 @@
 // utils/emailService.js
 
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
-require('dotenv').config();
+//const formData = require('form-data');
+//const Mailgun = require('mailgun.js');
+//require('dotenv').config();
 
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({
-  username: 'api',
-  key: process.env.MAILGUN_API_KEY,
-  url: 'https://api.mailgun.net', // only change if you're on EU region
-});
+//const mailgun = new Mailgun(formData);
+//const mg = mailgun.client({
+ // username: 'api',
+ // key: process.env.MAILGUN_API_KEY,
+ // url: 'https://api.mailgun.net', // only change if you're on EU region
+//});
 
-const sendOTPEmail = async (to, otp) => {
-  try {
+//const sendOTPEmail = async (to, otp) => {
+ // try {
     // ✅ Debug logs added to verify env variables
-    console.log("🚀 MAILGUN KEY:", process.env.MAILGUN_API_KEY);
-    console.log("📬 MAILGUN DOMAIN:", process.env.MAILGUN_DOMAIN);
-    console.log("📧 EMAIL FROM:", process.env.EMAIL_FROM);
+  //  console.log("🚀 MAILGUN KEY:", process.env.MAILGUN_API_KEY);
+   // console.log("📬 MAILGUN DOMAIN:", process.env.MAILGUN_DOMAIN);
+   // console.log("📧 EMAIL FROM:", process.env.EMAIL_FROM);
 
-    const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
-      from: process.env.EMAIL_FROM,
-      to,
-      subject: 'Your VPC Coin OTP Code',
-      text: `Your One-Time Password (OTP) is: ${otp}`,
-      html: `<p>Your One-Time Password (OTP) is: <strong>${otp}</strong></p>`,
-    });
+   // const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+    //  from: process.env.EMAIL_FROM,
+   //   to,
+   //   subject: 'Your VPC Coin OTP Code',
+   //   text: `Your One-Time Password (OTP) is: ${otp}`,
+    //  html: `<p>Your One-Time Password (OTP) is: <strong>${otp}</strong></p>`,
+   // });
 
-    console.log('✅ Mailgun email sent:', response.id);
-    return true;
-  } catch (err) {
-    console.error('❌ Mailgun send error:', err.message);
-    return false;
-  }
-};
+   // console.log('✅ Mailgun email sent:', response.id);
+   // return true;
+  //} catch (err) {
+  //  console.error('❌ Mailgun send error:', err.message);
+  //  return false;
+ // }
+//};
 
-const sendResetEmail = async (to, link) => {
-  try {
-    const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
-      from: process.env.EMAIL_FROM,
-      to,
-      subject: 'Password Reset Request',
-      text: `Reset your password using this link: ${link}`,
-      html: `<p>Click the link to reset your password:</p><p><a href="${link}">${link}</a></p>`,
-    });
+//const sendResetEmail = async (to, link) => {
+ // try {
+  //  const response = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+   //   from: process.env.EMAIL_FROM,
+    //  to,
+    //  subject: 'Password Reset Request',
+      //text: `Reset your password using this link: ${link}`,
+     // html: `<p>Click the link to reset your password:</p><p><a href="${link}">${link}</a></p>`,
+   // });
 
-    console.log('✅ Reset email sent:', response.id);
-    return true;
-  } catch (err) {
-    console.error('❌ Failed to send reset email:', err.message);
-    return false;
-  }
-};
+  //  console.log('✅ Reset email sent:', response.id);
+   // return true;
+ // } catch (err) {
+    //console.error('❌ Failed to send reset email:', err.message);
+   // return false;
+ // }
+//};
 
-module.exports = {
-  sendOTPEmail,
-  sendResetEmail, // include this in your exports
-};
+//module.exports = {
+ // sendOTPEmail,
+ // sendResetEmail, // include this in your exports
+//};

@@ -3,16 +3,22 @@
 const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
-const { User } = require('../models'); // Make sure models/index.js includes User
+const { User } = require('../models');
+const crypto = require('crypto');
+const { sendOTPEmail, sendResetEmail } = require('../utils/naloEmailService');
+const { sendOTPSMS } = require('../utils/naloSmsService');
 
 console.log('✅ user.routes.js has been loaded');
+
+const emailOtps = {}; // { email: { otp, expires } }
+const phoneOtps = {}; // { phone: { otp, expires } }
+const resetTokens = {}; // { token: { userId, expires } }
 
 // ✅ Register new user
 router.post('/register', async (req, res) => {
   try {
     const { username, password, phone, email, auth_method } = req.body;
 
-    // Basic validation
     if (!username || !password || !auth_method) {
       return res.status(400).json({ message: 'Missing required fields.' });
     }
@@ -75,7 +81,7 @@ router.get('/check', async (req, res) => {
   }
 });
 
-// ✅ Password reset (must be securely connected with identity verification)
+// ✅ Password reset (after verification)
 router.post('/reset', async (req, res) => {
   try {
     const { username, newPassword } = req.body;
@@ -106,8 +112,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// ✅ Add this to routes/user.routes.js
-
+// ✅ Verify user identity by username and phone
 router.post('/verify', async (req, res) => {
   try {
     const { username, phone } = req.body;
@@ -119,7 +124,7 @@ router.post('/verify', async (req, res) => {
     const user = await User.findOne({
       where: {
         username: username.toUpperCase(),
-        phone: phone
+        phone
       }
     });
 
@@ -134,28 +139,19 @@ router.post('/verify', async (req, res) => {
   }
 });
 
-// Add at the top
-const { sendOTPEmail } = require('../utils/emailService');
-
-const emailOtps = {}; // Temporary in-memory store: { email: { otp, expires } }
-
-// ✅ Send OTP to email
+// ✅ Send OTP to email via Nalo
 router.post('/send-email-otp', async (req, res) => {
   const { email } = req.body;
 
   if (!email) return res.status(400).json({ message: 'Email is required.' });
 
-  // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-  // Save OTP temporarily for 5 minutes
   emailOtps[email] = {
     otp,
-    expires: Date.now() + 5 * 60 * 1000,
+    expires: Date.now() + 5 * 60 * 1000
   };
 
   const success = await sendOTPEmail(email, otp);
-
   if (!success) {
     return res.status(500).json({ message: 'Failed to send OTP. Try again later.' });
   }
@@ -163,17 +159,57 @@ router.post('/send-email-otp', async (req, res) => {
   res.status(200).json({ message: 'OTP sent to email.' });
 });
 
-const crypto = require('crypto');
-const { sendResetEmail } = require('../utils/emailService');
-const resetTokens = {}; // Temporary in-memory store
+// ✅ Send OTP to phone via Nalo
+router.post('/send-phone-otp', async (req, res) => {
+  const { phone } = req.body;
 
-// ✅ Send Reset Link to Email
+  if (!phone) return res.status(400).json({ message: 'Phone number is required.' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  phoneOtps[phone] = {
+    otp,
+    expires: Date.now() + 5 * 60 * 1000
+  };
+
+  const success = await sendOTPSMS(phone, otp);
+  if (!success) {
+    return res.status(500).json({ message: 'Failed to send OTP via SMS. Try again later.' });
+  }
+
+  res.status(200).json({ message: 'OTP sent via SMS.' });
+});
+
+// ✅ Verify email OTP
+router.post('/verify-email-otp', async (req, res) => {
+  const { email, otp } = req.body;
+
+  const record = emailOtps[email];
+  if (!record || record.otp !== otp || record.expires < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP.' });
+  }
+
+  delete emailOtps[email];
+  res.status(200).json({ verified: true });
+});
+
+// ✅ Verify phone OTP
+router.post('/verify-phone-otp', async (req, res) => {
+  const { phone, otp } = req.body;
+
+  const record = phoneOtps[phone];
+  if (!record || record.otp !== otp || record.expires < Date.now()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP.' });
+  }
+
+  delete phoneOtps[phone];
+  res.status(200).json({ verified: true });
+});
+
+// ✅ Send reset link to email
 router.post('/send-reset-link', async (req, res) => {
   const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: 'Email is required' });
-  }
+  if (!email) return res.status(400).json({ message: 'Email is required' });
 
   try {
     const user = await User.findOne({ where: { email } });
@@ -182,16 +218,14 @@ router.post('/send-reset-link', async (req, res) => {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + 3600 * 1000; // 1 hour expiry
-
     resetTokens[token] = {
       userId: user.id,
-      expires,
+      expires: Date.now() + 3600 * 1000
     };
 
     const resetLink = `https://vpc-frontend.com/reset-password?token=${token}`;
-
     const emailSent = await sendResetEmail(email, resetLink);
+
     if (!emailSent) {
       return res.status(500).json({ message: 'Failed to send reset link' });
     }
