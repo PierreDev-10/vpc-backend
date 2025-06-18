@@ -18,7 +18,6 @@ const sendNaloEmail = async ({ to, subject, body }) => {
       payload,
       { headers: { 'Content-Type': 'application/json' } }
     );
-
     console.log('✅ Nalo email sent:', response.data);
     return true;
   } catch (error) {
@@ -27,4 +26,18 @@ const sendNaloEmail = async ({ to, subject, body }) => {
   }
 };
 
-module.exports = { sendNaloEmail };
+// 🔐 Send OTP Email
+const sendOTPEmail = async (email, otp) => {
+  const body = `Your OTP for VPC Coin registration is: ${otp}`;
+  const subject = 'VPC Coin OTP Verification';
+  return await sendNaloEmail({ to: email, subject, body });
+};
+
+// 🔁 Send Reset Link Email
+const sendResetEmail = async (email, link) => {
+  const body = `Click the link below to reset your VPC Coin password:\n\n${link}\n\nIf you did not request this, please ignore this message.`;
+  const subject = 'VPC Coin Password Reset';
+  return await sendNaloEmail({ to: email, subject, body });
+};
+
+module.exports = { sendOTPEmail, sendResetEmail };
