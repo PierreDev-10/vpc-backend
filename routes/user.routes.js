@@ -160,23 +160,34 @@ router.post('/send-email-otp', async (req, res) => {
 });
 
 // ✅ Send OTP to phone via Nalo
-router.post('/send-phone-otp', async (req, res) => {
+router.post('/send-sms-otp', async (req, res) => {
   const { phone } = req.body;
 
-  if (!phone) return res.status(400).json({ message: 'Phone number is required.' });
+  if (!phone) {
+    return res.status(400).json({ message: 'Phone number is required.' });
+  }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   phoneOtps[phone] = {
     otp,
-    expires: Date.now() + 5 * 60 * 1000
+    expires: Date.now() + 5 * 60 * 1000,
   };
 
-  const success = await sendOTPSMS(phone, otp);
-  if (!success) {
-    return res.status(500).json({ message: 'Failed to send OTP via SMS. Try again later.' });
-  }
+  try {
+    console.log(`📤 Attempting to send OTP ${otp} to phone: ${phone}`);
+    const success = await sendOTPSMS(phone, otp);
 
-  res.status(200).json({ message: 'OTP sent via SMS.' });
+    if (!success) {
+      console.error(`❌ Failed to send OTP via SMS to ${phone}`);
+      return res.status(500).json({ message: 'Failed to send OTP via SMS. Try again later.' });
+    }
+
+    console.log(`✅ OTP sent successfully via SMS to ${phone}`);
+    res.status(200).json({ message: 'OTP sent via SMS.' });
+  } catch (error) {
+    console.error('❌ Exception during SMS sending:', error);
+    res.status(500).json({ message: 'An unexpected error occurred while sending SMS.' });
+  }
 });
 
 // ✅ Verify email OTP
@@ -193,7 +204,7 @@ router.post('/verify-email-otp', async (req, res) => {
 });
 
 // ✅ Verify phone OTP
-router.post('/verify-phone-otp', async (req, res) => {
+router.post('/verify-sms-otp', async (req, res) => {
   const { phone, otp } = req.body;
 
   const record = phoneOtps[phone];
