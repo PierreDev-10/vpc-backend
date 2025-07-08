@@ -1,6 +1,9 @@
 // utils/naloEmailService.js
 const axios = require('axios');
 
+/**
+ * Sends a general email using Nalo Email API.
+ */
 const sendNaloEmail = async ({ to, subject, body }) => {
   const payload = {
     key: process.env.NALO_EMAIL_API_KEY,
@@ -26,17 +29,21 @@ const sendNaloEmail = async ({ to, subject, body }) => {
   }
 };
 
-// 🔐 Send OTP Email
+/**
+ * Sends an OTP email with proper formatting.
+ */
 const sendOTPEmail = async (email, otp) => {
-  const body = `Your OTP for VPC Coin registration is: ${otp}`;
-  const subject = 'VPC Coin OTP Verification';
+  const subject = 'VPC Coin Registration';
+  const body = `Your OTP for VPC Coin registration is ${otp}`;
   return await sendNaloEmail({ to: email, subject, body });
 };
 
-// 🔁 Send Reset Link Email
+/**
+ * Sends a password reset email.
+ */
 const sendResetEmail = async (email, link) => {
-  const body = `Click the link below to reset your VPC Coin password:\n\n${link}\n\nIf you did not request this, please ignore this message.`;
   const subject = 'VPC Coin Password Reset';
+  const body = `Click the link below to reset your VPC Coin password:\n\n${link}\n\nIf you did not request this, please ignore this message.`;
   return await sendNaloEmail({ to: email, subject, body });
 };
 
